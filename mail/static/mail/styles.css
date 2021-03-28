@@ -9,3 +9,9 @@ textarea {
 .read {
     background-color: grey;
 }
+.timestamp {
+    float: right;
+}
+#archive, #reply {
+    display: none;
+}

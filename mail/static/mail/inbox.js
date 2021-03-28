@@ -1,4 +1,7 @@
 //TODO: Change tab from 4 to 2
+let MAILBOX = '';
+let EMAILID = '';
+
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -31,6 +34,9 @@ function compose_email() {
 }
 
 function load_mailbox(mailbox) {
+
+  // Setting the global mailbox variable
+  MAILBOX = mailbox;
   
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
@@ -66,7 +72,7 @@ function addEmailToView(email) {
     row.classList.add('read');
   }
   
-  row.innerHTML = `<strong>${email.sender}</strong> ${email.subject} <span>${email.timestamp}</span>`;
+  row.innerHTML = `<strong>${email.sender}</strong> ${email.subject} <span class="timestamp">${email.timestamp}</span>`;
   
   // On email click
   row.addEventListener('click', () => {
@@ -96,9 +102,18 @@ function viewEmail(id) {
 function emailDetails(email) {
   const singleEmail = document.createElement('div');
 
-  singleEmail.innerHTML = `From: ${email.sender}<br>To: ${email.recipients}<br>Subject: ${email.subject}<br>${email.timestamp}<br>${email.body}`; 
+  singleEmail.innerHTML = `From: ${email.sender}<br>To: ${email.recipients}<br>Subject: ${email.subject}<br>${email.timestamp}<br><pre>${email.body}</pre>`; 
 
   document.querySelector('#email-view').append(singleEmail);
+
+  if (MAILBOX === 'inbox') {
+    fetch(`/emails/${email.id}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+          read: true
+      })
+    })
+  }
 }
 
 function sendEmail(event) {
