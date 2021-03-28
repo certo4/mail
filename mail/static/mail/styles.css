@@ -4,6 +4,7 @@ textarea {
 .row-style {
     border-style: solid;
     padding: 10px;
+    cursor: pointer;
 }
 .read {
     background-color: grey;

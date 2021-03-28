@@ -94,9 +94,11 @@ function viewEmail(id) {
 }
 
 function emailDetails(email) {
-  const emailView = document.querySelector('#email-view');
-  
+  const singleEmail = document.createElement('div');
 
+  singleEmail.innerHTML = `From: ${email.sender}<br>To: ${email.recipients}<br>Subject: ${email.subject}<br>${email.timestamp}<br>${email.body}`; 
+
+  document.querySelector('#email-view').append(singleEmail);
 }
 
 function sendEmail(event) {
@@ -112,7 +114,9 @@ function sendEmail(event) {
     body: JSON.stringify({
         recipients: formRecipients,
         subject: formSubject,
-        body: formBody
+        body: formBody,
+        archived: false,
+        read: false
     })
     })
     .then(response => response.json())
