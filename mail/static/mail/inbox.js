@@ -87,6 +87,23 @@ function viewEmail(id) {
   document.querySelector('#email-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
 
+  // Flushing the default values in the email
+  document.querySelector('#from').innerHTML = '';
+  document.querySelector('#to').innerHTML = '';
+  document.querySelector('#subject').innerHTML = '';
+  document.querySelector('#timestamp').innerHTML = '';
+  document.querySelector('#body').innerHTML = '';
+
+  // Marking email as read
+  if (MAILBOX === 'inbox') {
+    fetch(`/emails/${email.id}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+          read: true
+      })
+    })
+  }
+
   fetch(`/emails/${id}`)
   .then(response => response.json())
   .then(email => {
@@ -101,18 +118,11 @@ function viewEmail(id) {
 function emailDetails(email) {
   const singleEmail = document.createElement('div');
 
-  singleEmail.innerHTML = `From: ${email.sender}<br>To: ${email.recipients}<br>Subject: ${email.subject}<br>${email.timestamp}<br><pre>${email.body}</pre>`; 
-
-  document.querySelector('#email-view').append(singleEmail);
-
-  if (MAILBOX === 'inbox') {
-    fetch(`/emails/${email.id}`, {
-      method: 'PUT',
-      body: JSON.stringify({
-          read: true
-      })
-    })
-  }
+  document.querySelector('#from').innerHTML = email.sender;
+  document.querySelector('#to').innerHTML = email.recipients;
+  document.querySelector('#subject').innerHTML = email.subject;
+  document.querySelector('#timestamp').innerHTML = email.timestamp;
+  document.querySelector('#body').innerHTML = email.body;
 }
 
 function sendEmail(event) {
