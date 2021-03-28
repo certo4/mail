@@ -1,4 +1,3 @@
-//TODO: Change tab from 4 to 2
 let MAILBOX = '';
 let EMAILID = '';
 
@@ -138,9 +137,9 @@ function sendEmail(event) {
     .then(result => {
         // Print result
         console.log(result);
-    });
 
-      //TODO: Redirect to the sent inbox
+        //TODO: Redirect to the sent inbox
+    });
 }
 
 
