@@ -30,6 +30,9 @@ function compose_email() {
   document.querySelector('#email-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
 
+  // Clear error message
+  document.querySelector('#error-message').innerHTML = '';
+
   // Clear out composition fields
   document.querySelector('#compose-recipients').value = '';
   document.querySelector('#compose-subject').value = '';
@@ -52,11 +55,10 @@ function load_mailbox(mailbox) {
   fetch(`/emails/${mailbox}`)
   .then(response => response.json())
   .then(emails => {
-      // Print emails
-      console.log(emails);
 
       const emailsView = document.querySelector('#emails-view');
 
+      // If there aren't emails show error, else display them
       if (emails.length === 0) {
         emailsView.innerHTML += "No emails found";
       } else {
@@ -67,14 +69,17 @@ function load_mailbox(mailbox) {
 }
 
 function addEmailToView(email) {
-  const row = document.createElement('div');
 
+  // Create row element and add styling
+  const row = document.createElement('div');
   row.classList.add('row-style');
 
+  // If the email is read add grey background
   if (email.read) {
     row.classList.add('read');
   }
   
+  // Populate email information
   row.innerHTML = `<strong>${email.sender}</strong> ${email.subject} <span class="timestamp">${email.timestamp}</span>`;
   
   // On email click
@@ -86,6 +91,7 @@ function addEmailToView(email) {
 }
 
 function viewEmail(id) {
+
   // Setting the global mailbox variable
   EMAILID = id;
 
@@ -115,9 +121,8 @@ function viewEmail(id) {
   fetch(`/emails/${id}`)
   .then(response => response.json())
   .then(email => {
-      // Print email
-      console.log(email);
 
+      // Display email details
       emailDetails(email);
   });
   
@@ -125,11 +130,12 @@ function viewEmail(id) {
 
 function emailDetails(email) {
 
-  // If not on Sent, show archive button
+  // If not on Sent inbox, show archive button
   if (MAILBOX !== 'sent') {
     document.querySelector('#archive').style.display = 'block';
     document.querySelector('#archive').innerHTML = '';
 
+    // Change button label
     if (MAILBOX === 'inbox') {
       document.querySelector('#archive').innerHTML = 'Archive';
     } else {
@@ -149,6 +155,8 @@ function emailDetails(email) {
 }
 
 function sendEmail(event) {
+
+  // Preventing form submission refresh
   event.preventDefault();
 
   // Getting all user input to send to API
@@ -156,10 +164,13 @@ function sendEmail(event) {
   const formSubject = document.querySelector('#compose-subject').value;
   const formBody = document.querySelector('#compose-body').value;
 
+  // Creating recipients array
+  let recipientArray = formRecipients.split(",");
+
   fetch('/emails', {
     method: 'POST',
     body: JSON.stringify({
-        recipients: formRecipients,
+        recipients: recipientArray,
         subject: formSubject,
         body: formBody,
         archived: false,
@@ -168,15 +179,27 @@ function sendEmail(event) {
     })
     .then(response => response.json())
     .then(result => {
-        // Print result
-        console.log(result);
 
-        // Redirecting to sent inbox
-        load_mailbox('sent');  
-    });
+        // Print error if there is one, else redirect to inbox
+        if (result.error) {
+          document.querySelector('#error-message').innerHTML = `Error: ${result.error}`;
+        } else {
+          load_mailbox('sent'); 
+        }
+    })
+    .catch((error) => {
+      console.log(error);
+      
+
+      // Print error if there is one
+      document.querySelector('#error-message').innerHTML = error;
+    });;
+
 }
 
 function archiveEmail() {
+
+  // Check whether to archive
   let archive = false;
   if (MAILBOX === 'inbox') {
     archive = true;
@@ -190,16 +213,11 @@ function archiveEmail() {
   })
   .then(response => response.json())
   .then(result => {
-      // Print result
-      console.log(result);
-
-      // TODO: Unexpected end of JSON
 
       // Redirecting to sent inbox
       load_mailbox('inbox');  
   })
   .catch((error) => {
-    console.log(error);
 
     // Redirecting to sent inbox
     load_mailbox('inbox');
@@ -207,6 +225,7 @@ function archiveEmail() {
 }
 
 function replyToEmail() {
+
   // Show compose view and hide other views
   compose_email();
 
@@ -224,9 +243,9 @@ function replyToEmail() {
     if (newSubject.slice(0,4) !== 'Re: ') {
       newSubject = `Re: ${email.subject}`;
     }
-    
+
     document.querySelector('#compose-subject').value = newSubject;
-    document.querySelector('#compose-body').value = `\n\n\n<hr>On ${email.timestamp} ${email.sender} wrote:\n${email.body}`;
+    document.querySelector('#compose-body').value = `\n\n\n____\nOn ${email.timestamp} ${email.sender} wrote:\n${email.body}`;
   });
 }
 
