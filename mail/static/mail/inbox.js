@@ -164,13 +164,10 @@ function sendEmail(event) {
   const formSubject = document.querySelector('#compose-subject').value;
   const formBody = document.querySelector('#compose-body').value;
 
-  // Creating recipients array
-  let recipientArray = formRecipients.split(",");
-
   fetch('/emails', {
     method: 'POST',
     body: JSON.stringify({
-        recipients: recipientArray,
+        recipients: formRecipients,
         subject: formSubject,
         body: formBody,
         archived: false,
